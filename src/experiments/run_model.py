@@ -108,7 +108,7 @@ def main(config):
             if data.is_directed():
                 data.edge_index = to_undirected(data.edge_index)
             train_data, _, _ = get_link_data_split(data, dataset_name=config.dataset.dataset_name)
-            only_train = True
+            only_train = False
 
         model = Node2Vec(
             edge_index=train_data.edge_index if only_train else data.edge_index,

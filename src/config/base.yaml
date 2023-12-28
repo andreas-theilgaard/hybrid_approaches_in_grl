@@ -1,6 +1,6 @@
 defaults:
   - _self_
-  - dataset: PubMed-class
+  - dataset: Flickr-link
 
 version: 'Graph Project v1'
 
@@ -8,8 +8,9 @@ hydra:
   run:
     dir: ./outputs/${dataset.task}/${dataset.dataset_name}/${model_type}/${now:%Y-%m-%d}/${now:%H-%M-%S}
 
-model_type: Shallow
+model_type: Node2Vec
 device: 'cpu'
-runs: 1
+runs: 2
 debug: False
 use_wandb: True
+identifier: False

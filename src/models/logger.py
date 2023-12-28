@@ -3,16 +3,47 @@ import pandas as pd
 from src.models.metrics import directions
 import wandb
 import time
+from src.models.model_utils import cur_time
+
+
+def create_group(config,identifier):
+    if config.model_type == 'DownStream':
+        if config.dataset.DownStream.using_features:
+            return f"{identifier}-{config.model_type}-Features-{config.dataset.DIM}"
+        elif config.dataset.DownStream.saved_embeddings:
+            return f"{identifier}-{config.model_type}-using {config.dataset.DownStream.saved_embeddings.split('/')[-2]}-{config.dataset.DIM}"
+        elif config.dataset.DownStream.use_spectral:
+            return f"{identifier}-{config.model_type}-Laplacian-{config.dataset.DIM}"
+        
+    elif config.model_type == 'Node2Vec':
+            return f"{identifier}-{config.model_type}-{config.dataset.DIM}"
+    
+    elif config.model_type in ['GNN','GNN_DIRECT']:
+            if config.dataset[config.model_type].extra_info:
+                return f"{identifier}-{config.model_type}-{config.dataset.GNN.model}-using {config.dataset[config.model_type].extra_info.split('/')[-2]}-{config.dataset.DIM}"
+            elif config.dataset[config.model_type].use_spectral:
+                return f"{identifier}-{config.model_type}-{config.dataset.GNN.model}-Laplacian-{config.dataset.DIM}"
+            else:
+                return f"{identifier}-{config.model_type}-{config.dataset.GNN.model}-{config.dataset.DIM}" 
+            
+    elif config.model_type == 'Shallow':
+        return f"{identifier}-{config.model_type}-{config.dataset.DIM}"
+    elif config.model_type == 'combined':
+        if config.dataset.combined.type == 'LogitsIntegration':
+            return f"{identifier}-{config.model_type}-LogitsIntegration-{config.dataset.combined.LogitsIntegration.training.deep_model}-{config.dataset.DIM}"
+        elif config.dataset.combined.type == 'CombinedLatents':
+            return f"{identifier}-{config.model_type}-CombinedLatents-{config.dataset.combined.CombinedLatents.training.deep_model}-{config.dataset.DIM}"
 
 class WB_Logger:
     def __init__(self,config):
         self.config = config
+        self.identifier = config.identifier if config.identifier else cur_time()
 
     def init_WB(self,seed):
         wandb.init(
-            project="Hybrid Approaches in GRL",
+            project=f"Hybrid Approaches in GRL {self.config.dataset.task}-{self.config.dataset.dataset_name}",
             reinit=False,
-            group=f"{self.config.dataset.task}-{self.config.dataset.dataset_name}-{self.config.model_type}-{self.config.dataset.DIM}",
+            group=create_group(self.config,self.identifier),
             job_type=f"{seed}",
             anonymous='must',
             save_code=True,
@@ -45,6 +76,7 @@ class LoggerClass(object):
         self.directions = [directions(x) for x in metrics]
         self.config = config
         self.WB_Logger = WB_Logger(config=self.config)
+        self.wandb_closed = False
 
         if self.track_metric and self.track_best:
             self.best_val = -1
@@ -83,6 +115,9 @@ class LoggerClass(object):
         elapsed = end - self.start
         if self.config.use_wandb and not self.config.debug:
             wandb.log({f"Elapsed Time:": elapsed})
+            if self.current_run != self.runs:
+                wandb.finish()
+
 
     def save_value(self, values: dict):
         for key in values.keys():
@@ -92,10 +127,11 @@ class LoggerClass(object):
         self.results.columns = self.metrics + ["Run"]
         self.results.reset_index(drop=True, inplace=True)
         self.results.to_json(save_path)
-        if self.config.use_wandb and not self.config.debug:
+        if self.config.use_wandb and not self.config.debug and not self.wandb_closed:
             results_table = wandb.Table(dataframe=self.results)
             wandb.log({"Results": results_table})
             wandb.finish()
+            self.wandb_closed = True
 
 
     def logger_load(self, save_path):

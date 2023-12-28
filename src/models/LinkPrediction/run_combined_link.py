@@ -3,7 +3,7 @@ from src.models.LinkPrediction.combined.combined_latents import fit_combined_lat
 
 
 def fit_combined_link(config, dataset, training_args, Logger, log, seeds, save_path):
-    if config.dataset.combined.type == "logits_integration":
+    if config.dataset.combined.type == "LogitsIntegration":
         fit_logits_integration(
             config=config,
             dataset=dataset,
@@ -13,7 +13,7 @@ def fit_combined_link(config, dataset, training_args, Logger, log, seeds, save_p
             seeds=seeds,
             save_path=save_path,
         )
-    elif config.dataset.combined.type == "combined_latents":
+    elif config.dataset.combined.type == "CombinedLatents":
         fit_combined_latents(
             config=config,
             dataset=dataset,

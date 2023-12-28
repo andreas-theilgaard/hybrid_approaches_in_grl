@@ -12,7 +12,7 @@ DownStream:
   K: ${dataset.DIM}
   random: False
   training:
-    epochs: 200
+    epochs: 2 #200
     num_layers: 2
     dropout: 0.5
     lr: 0.01
@@ -25,12 +25,12 @@ Node2Vec:
     walk_length: 80
     context_size: 20
     walks_per_node: 10
-    epochs: 20
+    epochs: 3 #20
     lr: 0.01
     batch_size: 256
     num_negative_samples: 1
     sparse: True
-    num_workers: 4
+    num_workers: 1
 
 GNN:
   model: 'GraphSage'
@@ -42,7 +42,7 @@ GNN:
     num_layers: 2
     dropout: 0.0
     lr: 0.001
-    epochs: 500
+    epochs: 5 # 500
     batch_size: 65536
     weight_decay: 0.000001
 
@@ -50,7 +50,7 @@ GNN:
 Shallow:
   training:
     lr: 0.01
-    epochs: 300
+    epochs: 2 #300
     init_beta: 0.0
     embedding_dim: ${dataset.DIM}
     init: 'laplacian'
@@ -81,16 +81,16 @@ combined:
       weight_decay_deep: 0.0
 
       balance: False
-      warm_start: 500
-      joint_train: 300
+      warm_start: 5 # 500
+      joint_train: 3 #300
       shallow_lr_joint: 0.01
       deep_lr_joint: 0.001
       lambda_lr: 0.01
       lambda_: 1.0
       batch_size: 65536
       direction: 'deep_first'
-      shallow_frozen_epochs: 150
-      deep_frozen_epochs: 150
+      shallow_frozen_epochs: 0
+      deep_frozen_epochs: 200
       MLP_HIDDEN_CHANNELS: 16
 
   CombinedLatents:
@@ -110,8 +110,8 @@ combined:
       deep_num_layers: 2
       deep_dropout: 0.0
 
-      warm_start: 500
-      joint_train: 300
+      warm_start: 2 #500
+      joint_train: 2 #300
       shallow_lr_joint: 0.01
       deep_lr_joint: 0.001
       lambda_lr: 0.01
