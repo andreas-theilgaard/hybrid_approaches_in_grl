@@ -1,10 +1,42 @@
-# Hybrid Approaches in GRL
+Hybrid Approaches in Graph Representation Learning
+==============================
 
-A short description of the project.
+About
+------------
+...
 
-## Project structure
+Environment Setup
+------------
+First create a virtual environment by
+```
+conda create -n <env_name> python=3.10
+conda activate <env_name>
+```
 
-The directory structure of the project looks like this:
+Then install the torch related packages using the following
+
+Use the folloiwng is cuda is avaviable. This is recommended.
+```
+pip3 install --no-cache-dir torch==1.13.1+cu117 --index-url https://download.pytorch.org/whl/cu117
+pip3 install --no-cache-dir torch-geometric==2.4.0
+pip3 install -—no-cache-dir torch-sparse==0.6.16 -f https://data.pyg.org/whl/torch-1.13.1+cu117.html
+pip3 install -—no-cache-dir torch-scatter==2.1.1 -f https://data.pyg.org/whl/torch-1.13.1+cu117.html
+pip3 install -—no-cache-dir torch-cluster==1.6.3 -f https://data.pyg.org/whl/torch-1.13.1+cu117.html
+```
+
+Else use the following.
+```
+pip3 install --no-cache-dir torch==1.13.1
+pip3 install --no-cache-dir torch-geometric==2.4.0
+pip3 install -—no-cache-dir torch-sparse==0.6.16 -f https://data.pyg.org/whl/torch-1.13.1+cpu.html
+pip3 install -—no-cache-dir torch-scatter==2.1.1 -f https://data.pyg.org/whl/torch-1.13.1+cpu.html
+pip3 install -—no-cache-dir torch-cluster==1.6.3 -f https://data.pyg.org/whl/torch-1.13.1+cpu.html
+```
+
+Finally, setup the environment and install any auxiliary dependencies using
+```
+pip3 install -r requirements.txt
+```
 
 ```txt
 

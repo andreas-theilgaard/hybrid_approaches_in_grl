@@ -1,0 +1,127 @@
+dataset_name: 'ogbl-collab'
+task: 'LinkPrediction'
+metrics: ['hits@10','hits@50','hits@100','acc']
+track_metric: 'hits@50'
+
+DIM: 16
+
+DownStream:
+  saved_embeddings: False
+  using_features: True
+  use_spectral: False
+  random: False
+  K: ${dataset.DIM}
+  training:
+    epochs: 200
+    num_layers: 3
+    dropout: 0.0
+    lr: 0.01
+    hidden_channels: 16
+    batch_size: 65536
+    weight_decay: 0
+
+Node2Vec:
+  training:
+    embedding_dim: ${dataset.DIM}
+    walk_length: 80
+    context_size: 20
+    walks_per_node: 10
+    epochs: 5
+    lr: 0.01
+    batch_size: 256
+    num_negative_samples: 1
+    sparse: True
+    num_workers: 4
+
+GNN:
+  model: 'GraphSage'
+  extra_info: False
+  use_spectral: False
+  K: ${dataset.DIM}
+  training:
+    hidden_channels: ${dataset.DIM}
+    num_layers: 3
+    dropout: 0.0
+    lr: 0.01
+    epochs: 400
+    use_valedges: False
+    batch_size: 65536
+    weight_decay: 0
+
+
+Shallow:
+  training:
+    lr: 0.1
+    epochs: 20
+    init_beta: 0.0
+    embedding_dim: ${dataset.DIM}
+    init: 'laplacian'
+    decode_type: 'dist'
+    batch_size: 65536
+    train_batch: False
+    weight_decay: 0
+
+combined:
+  type: 'LogitsIntegration'
+  LogitsIntegration:
+    training:
+      shallow_lr: 0.1
+      init_beta: 0.0
+      embedding_dim: ${dataset.DIM}
+      init: 'laplacian'
+      decode_type: 'dist'
+      weight_decay_shallow: 0
+
+
+      deep_model: 'GraphSage'
+      deep_hidden_channels: ${dataset.DIM}
+      deep_lr: 0.001
+      deep_out_dim: ${dataset.DIM}
+      deep_num_layers: 3
+      deep_dropout: 0.0
+      weight_decay_deep: 0
+
+      balance: False
+      warm_start: 100
+      joint_train: 400
+      shallow_lr_joint: 0.1
+      deep_lr_joint: 0.001
+      lambda_lr: 0.01
+      lambda_: 1.0
+      batch_size: 65536
+      direction: 'deep_first'
+      shallow_frozen_epochs: 200
+      deep_frozen_epochs: 200
+      MLP_HIDDEN_CHANNELS: 16
+
+  CombinedLatents:
+    training:
+      shallow_lr: 0.1
+      init_beta: 0.0
+      embedding_dim: ${dataset.DIM}
+      init: 'laplacian'
+      decode_type: 'dist'
+
+
+      deep_model: 'GraphSage'
+      deep_hidden_channels: ${dataset.DIM}
+      deep_lr: 0.001
+      deep_out_dim: ${dataset.DIM}
+      deep_num_layers: 3
+      deep_dropout: 0.0
+
+      warm_start: 100
+      shallow_weight_decay: 0.0
+      joint_train: 400
+      shallow_lr_joint: 0.1
+      deep_lr_joint: 0.001
+      lambda_lr: 0.01
+      lambda_: 1.0
+      batch_size: 65536
+      direction: 'deep_first'
+      shallow_frozen_epochs: 0
+      deep_frozen_epochs: 400
+
+      MLP_HIDDEN_CHANNELS: 16
+      MLP_LAYERS: 3
+      MLP_DROPOUT: 0.0

@@ -1,0 +1,150 @@
+dataset_name: 'Cora'
+task: 'NodeClassification'
+metrics: ['acc','f1-micro','f1-macro']
+track_metric: 'acc'
+
+DIM: 16
+
+DownStream:
+  saved_embeddings: False
+  using_features: True
+  use_spectral: False
+  random: False
+  K: ${dataset.DIM}
+  training:
+    epochs: 300
+    num_layers: 2
+    dropout: 0.5
+    lr: 0.01
+    hidden_channels: 16
+    batchnorm: False
+    weight_decay: 0.0
+
+
+Node2Vec:
+  training:
+    embedding_dim: ${dataset.DIM}
+    walk_length: 20
+    context_size: 10
+    walks_per_node: 10
+    epochs: 30
+    lr: 0.01
+    batch_size: 256
+    num_negative_samples: 1
+    sparse: True
+    num_workers: 4
+
+GNN:
+  model: 'GraphSage'
+  extra_info: False
+  use_spectral: False
+  K: ${dataset.DIM}
+  training:
+    hidden_channels: ${dataset.DIM}
+    num_layers: 2
+    dropout: 0.5
+    lr: 0.01
+    epochs: 500
+    batchnorm: False
+    weight_decay: 0.0
+
+GNN_DIRECT:
+  model: 'GraphSage'
+  extra_info: False
+  use_spectral: False
+  K: ${dataset.DIM}
+  training:
+    hidden_channels: ${dataset.DIM}
+    num_layers: 2
+    dropout: 0.0
+    lr: 0.01
+    epochs: 500
+    weight_decay: 0
+    decode_type: 'dist'
+    init_beta: 0.0
+    train_batch: True
+    batch_size: 256
+
+
+Shallow:
+  training:
+    lr: 0.1
+    epochs: 500
+    init_beta: 0.0
+    embedding_dim: ${dataset.DIM}
+    init: 'laplacian'
+    decode_type: 'dist'
+    train_batch: True
+    batch_size: 256
+    weight_decay: 0.0
+
+
+combined:
+  type: 'LogitsIntegration'
+  LogitsIntegration:
+    training:
+      shallow_lr: 0.01
+      init_beta: 0.0
+      embedding_dim: ${dataset.DIM}
+      init: 'laplacian'
+      decode_type: 'dist'
+
+      deep_model: 'GraphSage'
+      deep_hidden_channels: ${dataset.DIM}
+      deep_lr: 0.01
+      deep_out_dim: ${dataset.DIM}
+      deep_num_layers: 2
+      deep_dropout: 0.0
+      deep_decode: 'dist'
+      gamma: 0.0
+
+      MLP_HIDDEN: 16
+      MLP_NUM_LAYERS: 2
+      MLP_DROPOUT: 0.5
+      MLP_LR: 0.01
+      MLP_EPOCHS: 300
+      APPLY_BATCHNORM: False
+
+
+      balance: False
+      warm_start: 200
+      joint_train: 300
+      shallow_lr_joint: 0.01
+      deep_lr_joint: 0.01
+      lambda_lr: 0.01
+      lambda_: 1.0
+      batch_size: 256
+      direction: 'deep_first'
+      shallow_frozen_epochs: 150
+      deep_frozen_epochs: 150
+
+  CombinedLatents:
+    training:
+      shallow_lr: 0.01
+      init_beta: 0.0
+      embedding_dim: ${dataset.DIM}
+      init: 'laplacian'
+      decode_type: 'dist'
+      SHALLOW_WARM_START: 200
+      SHALLOW_TRAIN_BATCH: True
+      SHALLOW_WARM_BATCH_SIZE: 256
+
+
+      deep_model: 'GraphSage'
+      deep_hidden_channels: ${dataset.DIM}
+      deep_lr: 0.01
+      deep_out_dim: ${dataset.DIM}
+      deep_num_layers: 2
+      deep_dropout: 0.5
+
+      MLP_HIDDEN: 16
+      MLP_NUM_LAYERS: 2
+      MLP_DROPOUT: 0.5
+      MLP_LR: 0.01
+      APPLY_BATCHNORM: False
+
+      epochs: 500
+      batch_size: 256
+      direction: 'deep_first'
+      shallow_frozen_epochs: 100
+      deep_frozen_epochs: 100

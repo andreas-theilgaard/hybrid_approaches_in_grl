@@ -1,0 +1,15 @@
+defaults:
+  - _self_
+  - dataset: PubMed-class
+
+version: 'Graph Project v1'
+
+hydra:
+  run:
+    dir: ./outputs/${dataset.task}/${dataset.dataset_name}/${model_type}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+
+model_type: Shallow
+device: 'cpu'
+runs: 1
+debug: False
+use_wandb: True

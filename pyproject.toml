@@ -3,7 +3,7 @@ requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "Hybrid Approaches in GRL"
+name = "src"
 version = "0.0.1"
 description = "A short description of the project."
 authors = [
@@ -15,13 +15,13 @@ requires-python = "~=3.10"
 dynamic = ["dependencies", "optional-dependencies"]
 
 [tool.setuptools]
-packages = ["Hybrid Approaches in GRL"]
+packages = ["src"]
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
 
 [tool.setuptools.dynamic.optional-dependencies]
-dev = {file = ['requirements_dev.txt']}
+dev = {file = ['requirements_cpu.txt']}
 
 [tool.ruff]
 line-length = 120
